@@ -1,0 +1,26 @@
+body{
+  font-family: Arial, Arial;
+  font-size: 14px
+}
+
+caption {
+  color: #669933;
+  font-weight:normal;
+  text-decoration:NONE;
+  text-transform: uppercase;
+  font-size: 15px;
+}
+
+th {
+    border: 0 solid;
+    background-color:  #99CC33;
+    color: #FFFFFF;
+    height: 20px;
+}
+
+tr.resaltar {
+    /*background-color: #F5DEB3;*/
+    /*background-color: #e7fce7  ;*/
+    background-color:#e8ebef;
+    cursor: pointer;
+}
