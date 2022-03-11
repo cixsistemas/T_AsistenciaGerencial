@@ -5,7 +5,7 @@
 <%--https://sweetalert2.github.io/--%>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <link rel="icon" type="image/ico" href="imagenes/Sistema.ico" />
+    <link rel="icon" type="image/ico" href="Imagenes/Sistema.ico" />
     <title>Asistencia</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
