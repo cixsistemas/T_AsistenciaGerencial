@@ -22,7 +22,7 @@ public partial class Asistencia : Page
         __pagina.Value = "";
         //this.nombretipoproduccion.Focus();
         //Listar("", "", "1");
-        Obtener_Trabajador("18");
+        Obtener_Trabajador("1");
         DdlNroDni.Focus();
         FechaActual.Text = DateTime.Now.ToLongDateString();
     }
@@ -34,7 +34,7 @@ public partial class Asistencia : Page
             servidor.cadenaconexion = Ruta;
             if (servidor.abrirconexion() == true)
             {
-                DataTable dt = servidor.consultar("[dbo].[_pr_Obtener_Varios]", Opcion).Tables[0];
+                DataTable dt = servidor.consultar("[dbo].[PaListarTrabajadoresAsistenciaWeb]", Opcion).Tables[0];
                 if (dt.Rows.Count == 0)
                 {
                     servidor.cerrarconexion();
