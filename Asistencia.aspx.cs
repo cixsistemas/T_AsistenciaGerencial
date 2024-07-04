@@ -11,11 +11,12 @@ public partial class Asistencia : Page
     CsConexion servidor = new CsConexion();
     Lista _Lista = new Lista();
     CsClaveAutorizacion _CsClaveAutorizacion = new CsClaveAutorizacion();
-    string idClaveAutorizacion = "16";//INGRESAR A WEB DE ASISTENCIA
+    //string idClaveAutorizacion = "16";//INGRESAR A WEB DE ASISTENCIA
 
     protected void Page_Load(object sender, EventArgs e)
     {
         ValidationSettings.UnobtrusiveValidationMode = UnobtrusiveValidationMode.None;
+        //DdlNroDni.Focus();
         ////agregado el 03-07-2024
         //if (!IsPostBack)
         //{
@@ -32,9 +33,11 @@ public partial class Asistencia : Page
         Obtener_Trabajador("1");
         DdlNroDni.Focus();
         FechaActual.Text = DateTime.Now.ToLongDateString();
+
+        ConsultarClavesAutorizacion();
         //Title = TxtIp.Text.Trim();
-        string ipValor = Hf_Ip.Value.Trim();
-        VerificarAcceso(ipValor.Trim());
+        //string ipValor = Hf_Ip.Value.Trim();
+        //VerificarAcceso(ipValor.Trim());
 
         if (Verificar())
         {
@@ -148,9 +151,31 @@ public partial class Asistencia : Page
     #region validar clave
     protected void BtnClave_Click(object sender, EventArgs e)
     {
-        if (true)
-        {
+        // Obtener la fecha actual
+        DateTime today = DateTime.Now;
 
+        // Extraer el día, mes y año
+        string day = today.Day.ToString("D2");
+        string month = today.Month.ToString("D2");
+        string year = today.Year.ToString("D4");
+
+        string claveBD = hfClaveAutorizacion.Value + "" + day + "" + month + "" + year;
+        string claveDigitar = TxtClave.Text;
+
+        if (claveBD.Trim() == claveDigitar.Trim())
+        {
+            //Title = claveBD + " " + claveDigitar;
+            CrearTxt();
+            __mensaje.Value = "Contraseña correcta.";// + claveBD + " " + claveDigitar;
+            __pagina.Value = "Asistencia.aspx";
+            ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeExito();", true);
+
+        }
+        else
+        {
+            __mensaje.Value = "Contraseña incorrecta. Verifique.";
+            __pagina.Value = "";
+            ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeError();", true);
         }
     }
 
@@ -164,7 +189,7 @@ public partial class Asistencia : Page
     //============================================================================
 
     //============================================================================
-    #region validar ip 
+    #region OBTENER DATOS
     private void Obtener_Trabajador(string Opcion)
     {
         try
@@ -202,67 +227,12 @@ public partial class Asistencia : Page
             __pagina.Value = "CerrarSession.aspx";
         }
     }
-   
+
     #endregion
     //============================================================================
 
     //============================================================================
     #region generar txt
-    private void LogUnsuccessfulAccessAttempt(string ip)
-    {
-        string logDirectory = Server.MapPath("~/Archivos");
-        string logFilePath = Path.Combine(logDirectory, "AccessAttempts.txt");
-
-        string logEntry = string.Format("IP: {0}, Fecha y Hora: {1}\n", ip, DateTime.Now);
-
-        try
-        {
-            if (!Directory.Exists(logDirectory))
-            {
-                Directory.CreateDirectory(logDirectory);
-            }
-
-            File.AppendAllText(logFilePath, logEntry);
-        }
-        catch (Exception ex)
-        {
-            // Manejar cualquier error de IO aquí
-            // Puedes registrar el error o notificar al administrador
-        }
-    }
-
-    private void VerificarAcceso(string clientIp)
-    {
-        //string clientIp = Hf_Ip.Value;
-        string direccionIP = _Lista.LimpiarDireccionIP(clientIp);
-        IpAccessRepository repository = new IpAccessRepository();
-
-        if (!repository.IsIpAllowed(clientIp))
-        {
-            //Title = clientIp;
-            LogUnsuccessfulAccessAttempt(clientIp);
-            //Response.Redirect("ErrorPage.aspx?Ip=" + clientIp);
-        }
-        else
-        {
-            // Procesar la página normalmente
-            var ipAccessList = repository.GetAllIpAccess();
-            foreach (var ipAccess in ipAccessList)
-            {
-                //// Procesar la lista de IPs
-                //Response.Write($"ID: {ipAccess.IdIp}, IP: {ipAccess.Ip}, Permiso: {ipAccess.Permiso}<br/>");
-            }
-
-            //// Agregar una nueva IP (ejemplo)
-            //IpAccess newIpAccess = new IpAccess
-            //{
-            //    Ip = "192.168.1.100",
-            //    Permiso = "Allow"
-            //};
-            //repository.AddIpAccess(newIpAccess);
-        }
-    }
-
     public bool Verificar()
     {
         bool solicitarContraseña = false;
@@ -310,70 +280,6 @@ public partial class Asistencia : Page
 
         return solicitarContraseña;
     }
-    //public void CrearTxt()
-    //{
-
-    //    // Definir las rutas de los directorios
-    //    string pathC = @"C:\MyAppData";
-    //    string pathAppData = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
-
-    //    // Asegurar que ambos directorios existan
-    //    EnsureDirectoryExists(pathC);
-    //    EnsureDirectoryExists(pathAppData);
-
-    //    // Obtener todos los archivos en ambos directorios
-    //    var filesC = Directory.GetFiles(pathC);
-    //    var filesAppData = Directory.GetFiles(pathAppData);
-
-    //    //Caso 1: Si ambos directorios están vacíos, crear un archivo en cada uno
-    //    if (filesC.Length == 0 && filesAppData.Length == 0)
-    //    {
-    //        string newFileC = CreateNewFile(pathC, "unique_01.txt");
-    //        CreateNewFile(pathAppData, "unique_01.txt");
-    //    }
-    //    // Caso 2: Si C:\MyAppData está vacío y ~/App_Data/ tiene archivos, crear un nuevo archivo 
-    //    // en ~/App_Data/ y copiarlo a C:\MyAppData
-    //    else if (filesC.Length == 0 && filesAppData.Length > 0)
-    //    {
-    //        string newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
-    //        CopyFile(newFileAppData, pathC);
-    //    }
-    //    // Caso 3: Si C:\MyAppData tiene más de un archivo, eliminar todos los archivos y crear uno nuevo 
-    //    //en ~/App_Data/ y copiarlo a C:\MyAppData
-    //    else if (filesC.Length > 1)
-    //    {
-    //        DeleteAllFiles(pathC);
-    //        string newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
-    //        CopyFile(newFileAppData, pathC);
-    //    }
-    //    // Caso 4: Si ambos directorios tienen un archivo, comparar nombres de archivos y actuar en consecuencia
-    //    else if (filesC.Length == 1 && filesAppData.Length == 1)
-    //    {
-    //        string fileC = Path.GetFileName(filesC[0]);
-    //        string fileAppData = Path.GetFileName(filesAppData[0]);
-
-    //        if (fileC != fileAppData)
-    //        {
-    //            DeleteAllFiles(pathC);
-    //            string newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
-    //            CopyFile(newFileAppData, pathC);
-    //        }
-    //    }
-
-    //    // Verificar si hay algún archivo en C:\MyAppData que no exista en ~/App_Data/
-    //    foreach (var file in filesC)
-    //    {
-    //        string fileName = Path.GetFileName(file);
-    //        if (!filesAppData.Any(f => Path.GetFileName(f) == fileName))
-    //        {
-    //            File.Delete(file);
-    //            string newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
-    //            CopyFile(newFileAppData, pathC);
-    //        }
-    //    }
-
-
-    //}
 
     public void CrearTxt()
     {

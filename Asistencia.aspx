@@ -209,8 +209,6 @@
                                 <ContentTemplate>
                                     <!-- MOSTRAR MENSAJE CUANDO HAY UPDATEPANEL -->
                                     <script type="text/javascript">
-                                        //Sys.Application.add_load(MostrarMensajeError);
-                                        //Sys.Application.add_load(MostrarMensajeExito);
                                         function MostrarMensajeError() {
                                             var mensaje = document.getElementById("__mensaje").value;
                                             if (mensaje != "") {
@@ -285,7 +283,7 @@
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="myModalClaveLabel">Solicitar acceso</h5>
+                                                    <h5 class="modal-title" id="myModalClaveLabel">INGRESAR A WEB DE ASISTENCIA</h5>
                                                 </div>
                                                 <div class="modal-body">
                                                     <asp:UpdatePanel ID="UpdatePanelModal" runat="server" UpdateMode="Conditional">
@@ -294,7 +292,7 @@
                                                                 <div class="row">
                                                                     <div class="col-md-12">
                                                                         <div class="form-group">
-                                                                            <label for="TxtClave"><b>Clave:</b></label>
+                                                                            <label for="TxtClave"><b>Ingresar clave:</b></label>
                                                                             <asp:RequiredFieldValidator ID="rfvTxtClave" runat="server" ControlToValidate="TxtClave"
                                                                                 ErrorMessage="*" ValidationGroup="ValidarViatico" BackColor="Yellow" ForeColor="Red" SetFocusOnError="True"
                                                                                 Display="Dynamic"></asp:RequiredFieldValidator>
@@ -310,7 +308,7 @@
                                                 </div>
                                                 <div class="modal-footer">
                                                     <asp:LinkButton ID="BtnClave" runat="server" ValidationGroup="ValidarViatico" OnClick="BtnClave_Click"
-                                                        CssClass="btn btn-primary" OnClientClick="return Confirmar('¿Desea guardar registro?');">
+                                                        CssClass="btn btn-primary" OnClientClick="return Confirmar('¿Desea generar acceso?');">
                     Aceptar <span class="glyphicon glyphicon-ok"></span>
                                                     </asp:LinkButton>
                                                     <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="redirectOnErrorPage()">
