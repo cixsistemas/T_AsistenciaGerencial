@@ -6,7 +6,7 @@ using System.Web.UI;
 public partial class AsistenciaUbicacion : Page
 {
     private string Ruta = ConfigurationManager.AppSettings.Get("CadenaConeccion");
-    policia.clsaccesodatos servidor = new policia.clsaccesodatos();
+    CsConexion servidor = new CsConexion();
     //string IP;
     string Ubicacion;
     protected void Page_Load(object sender, EventArgs e)
@@ -77,7 +77,7 @@ public partial class AsistenciaUbicacion : Page
     {
         try
         {
-            policia.clsaccesodatos servidor = new policia.clsaccesodatos();
+            //policia.clsaccesodatos servidor = new policia.clsaccesodatos();
             servidor.cadenaconexion = Ruta;
             if (servidor.abrirconexiontrans() == true)
             {

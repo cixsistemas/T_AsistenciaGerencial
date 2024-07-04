@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Data;
+using System.Text.RegularExpressions;
 using System.Web.UI.WebControls;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 
 /// <summary>
 /// Descripción breve de Lista
@@ -19,7 +14,7 @@ public class Lista
 		// TODO: Agregar aquí la lógica del constructor
 		//
 	}
-    public void Search_DropDownList(DataTable Tabla, System.Web.UI.WebControls.DropDownList control, String strcampo)
+    public void Search_DropDownList(DataTable Tabla, DropDownList control, String strcampo)
     {
         if (Tabla.Rows.Count == 0) return;
         for (int i = 0; i < control.Items.Count; i++)
@@ -31,9 +26,21 @@ public class Lista
         }
     }
 
-    public void ShowMessage(System.Web.UI.WebControls.HiddenField __mensaje, System.Web.UI.WebControls.HiddenField __pagina, string msg, string paginaweb)
+    public void ShowMessage(HiddenField __mensaje, HiddenField __pagina, string msg, string paginaweb)
     {
         __mensaje.Value = msg;
         __pagina.Value = paginaweb;
+    }
+
+    public string LimpiarDireccionIP(string valor)
+    {
+        // Utilizar una expresión regular para extraer la dirección IP
+        // Considerando que la dirección IP contiene solo números y puntos.
+        string patron = @"[\d.]+";
+        Regex regex = new Regex(patron);
+        Match match = regex.Match(valor);
+
+        // Devolver la parte de la dirección IP si se encuentra
+        return match.Success ? match.Value : string.Empty;
     }
 }
