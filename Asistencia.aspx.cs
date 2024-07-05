@@ -11,19 +11,10 @@ public partial class Asistencia : Page
     CsConexion servidor = new CsConexion();
     Lista _Lista = new Lista();
     CsClaveAutorizacion _CsClaveAutorizacion = new CsClaveAutorizacion();
-    //string idClaveAutorizacion = "16";//INGRESAR A WEB DE ASISTENCIA
-
+    CsAccesoPaginaWebAsistencia _CsAccesoAsistenciaWeb = new CsAccesoPaginaWebAsistencia();
     protected void Page_Load(object sender, EventArgs e)
     {
         ValidationSettings.UnobtrusiveValidationMode = UnobtrusiveValidationMode.None;
-        //DdlNroDni.Focus();
-        ////agregado el 03-07-2024
-        //if (!IsPostBack)
-        //{
-        //    //string clientIp = Request.ServerVariables["REMOTE_ADDR"];
-        //    Title = TxtIp.Text.Trim();
-        //    //VerificarIP();
-        //}
     }
 
     protected void Page_init(object sender, EventArgs e)
@@ -33,19 +24,42 @@ public partial class Asistencia : Page
         Obtener_Trabajador("1");
         DdlNroDni.Focus();
         FechaActual.Text = DateTime.Now.ToLongDateString();
-
         ConsultarClavesAutorizacion();
-        //Title = TxtIp.Text.Trim();
-        //string ipValor = Hf_Ip.Value.Trim();
-        //VerificarAcceso(ipValor.Trim());
 
         if (Verificar())
         {
             ScriptManager.RegisterStartupScript(this, GetType(), "displayalertmessage", "$('#myModalClave').modal();"
               + "setTimeout(function() { $('#TxtClave').focus(); }, 500);", true);
         }
+        else
+        {
+            string pathC = @"C:\MyAppData\unique_01.txt";
+            if (File.Exists(pathC))
+            {
+                string encryptedContent = File.ReadAllText(pathC);
+                try
+                {
+                    string decryptedContent = _Lista.Decrypt(encryptedContent);
 
-        //CrearTxt();
+                    if (!_CsAccesoAsistenciaWeb.VerifyGuidInDatabase(decryptedContent))
+                    {
+                        File.Delete(pathC); // Eliminar el archivo
+                        MostrarMensaje("Clave no coincide, con ninguna de la base de datos.", "", "error");
+                        ScriptManager.RegisterStartupScript(this, GetType(), "displayalertmessage", "$('#myModalClave').modal();"
+              + "setTimeout(function() { $('#TxtClave').focus(); }, 500);", true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MostrarMensaje("[Txt modificado] ==> " + ex.Message.ToString(), "ErrorPage.aspx", "error");
+                }
+            }
+            else
+            {
+                MostrarMensaje("Txt no existe.", "ErrorPage.aspx", "error");
+            }
+        }
+
     }
 
     //============================================================================
@@ -80,32 +94,28 @@ public partial class Asistencia : Page
                 {
                     servidor.cerrarconexiontrans();
                     btnRegistrar.Visible = false;
-                    __mensaje.Value = servidor.getMensaje();
-                    __pagina.Value = "Asistencia.aspx";
-                    ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeExito();", true);
+                    MostrarMensaje(servidor.getMensaje(), "Asistencia.aspx", "Correcto");
                 }
                 else
                 {
                     servidor.cancelarconexiontrans();
-                    __mensaje.Value = servidor.getMensaje();
-                    __pagina.Value = "";
-                    ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeError();", true);
-                    //ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "successalert();", true);
-                    //this.__pagina.Value = "_Asistencia.aspx";
+                    MostrarMensaje(servidor.getMensaje(), "", "error");
                 }
             }
             else
             {
                 servidor.cancelarconexiontrans();
-                __mensaje.Value = servidor.getMensageError();
-                __pagina.Value = "CerrarSession.aspx";
+                MostrarMensaje(servidor.getMensageError(), "", "error");
+                //__mensaje.Value = servidor.getMensageError();
+                //__pagina.Value = "CerrarSession.aspx";
             }
 
         }
         catch (Exception ex)
         {
-            __mensaje.Value = "Verifique " + ex.Message.ToString();
-            __pagina.Value = "";
+            MostrarMensaje("Error: " + ex.Message.ToString(), "", "error");
+            //__mensaje.Value = "Verifique " + ex.Message.ToString();
+            //__pagina.Value = "";
         }
     }
 
@@ -126,6 +136,8 @@ public partial class Asistencia : Page
 
         DateTime Hoy = DateTime.Today;
         string fecha_actual = Hoy.ToString("dd-MM-yyyy");
+        string hostModificacion = "Ip:" + Hf_Ip.Value + " - Ciudad: " + hfCiudad.Value.Trim()
+        + " - Navegador: " + hfNavegador.Value.Trim() + "(" + hfNavegadorVersion.Value.Trim() + ")";
         ////TxtFechaActual.Text = fecha_actual;
 
         Matenimiento_(Convert.ToInt32(Id_.Value.Trim()),
@@ -135,7 +147,7 @@ public partial class Asistencia : Page
         "WEB",//DESDE
         "",//UBICACION
         "",//OBSERVACION
-        "Ip:" + Hf_Ip.Value + " - Navegador:" + hfNavegador.Value.Trim() + "(" + hfNavegadorVersion.Value.Trim() + ")",//HOSTMODIFICACION
+        hostModificacion,//HOSTMODIFICACION
         //"Ip:" + Hf_Ip.Value,
         Convert.ToDateTime(fecha_actual),//FECHA_MODIFICACION
         Convert.ToInt32(DdlNroDni.SelectedValue),
@@ -159,31 +171,33 @@ public partial class Asistencia : Page
         string month = today.Month.ToString("D2");
         string year = today.Year.ToString("D4");
 
-        string claveBD = hfClaveAutorizacion.Value + "" + day + "" + month + "" + year;
-        string claveDigitar = TxtClave.Text;
+        string claveBD = hfClaveAutorizacion.Value + day + month + year;
+        string claveDigitar = TxtClave.Text.Trim();
 
-        if (claveBD.Trim() == claveDigitar.Trim())
+        if (claveBD.Trim() == claveDigitar)
         {
-            //Title = claveBD + " " + claveDigitar;
             CrearTxt();
-            __mensaje.Value = "Contraseña correcta.";// + claveBD + " " + claveDigitar;
-            __pagina.Value = "Asistencia.aspx";
-            ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeExito();", true);
-
+            MostrarMensaje("Contraseña correcta.", "Asistencia.aspx", "Correcto");
         }
         else
         {
-            __mensaje.Value = "Contraseña incorrecta. Verifique.";
-            __pagina.Value = "";
-            ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeError();", true);
+            MostrarMensaje("Contraseña incorrecta. Verifique.", "", "error");
         }
     }
 
     private void ConsultarClavesAutorizacion()
     {
-        DataTable T_ClaveManual = _CsClaveAutorizacion.Listar("1", "INGRESAR A WEB DE ASISTENCIA");
-        //hfClaveAutorizacion.Value = T_ClaveManual.Rows[0]["Clave"].ToString();
-        hfClaveAutorizacion.Value = T_ClaveManual.Rows[0]["Clave"].ToString();
+        string nombreAcceso = "INGRESAR A PAGINA WEB DE ASISTENCIA";
+        DataTable T_ClaveManual = _CsClaveAutorizacion.Listar("1", nombreAcceso.Trim());
+        if (T_ClaveManual.Rows.Count > 0)
+        {
+            hfClaveAutorizacion.Value = T_ClaveManual.Rows[0]["Clave"].ToString();
+        }
+        else
+        {
+            MostrarMensaje("No hay clave de autorización para mostrar. Consulte con el administrador.", "ErrorPage.aspx", "error");
+        }
+
     }
     #endregion
     //============================================================================
@@ -237,103 +251,53 @@ public partial class Asistencia : Page
     {
         bool solicitarContraseña = false;
         string pathC = @"C:\MyAppData";
-        string pathAppData = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
 
         EnsureDirectoryExists(pathC);
-        EnsureDirectoryExists(pathAppData);
 
         var filesC = Directory.GetFiles(pathC);
-        var filesAppData = Directory.GetFiles(pathAppData);
 
-        // Caso 1 y 2 combinados
+        // Caso 1: No hay archivos
         if (filesC.Length == 0)
         {
             solicitarContraseña = true;
         }
-        // Caso 3
+        // Caso 2: Hay más de un archivo
         else if (filesC.Length > 1)
         {
             solicitarContraseña = true;
         }
-        // Caso 4: Comparar archivos individuales
-        else if (filesC.Length == 1 && filesAppData.Length == 1)
-        {
-            if (Path.GetFileName(filesC[0]) != Path.GetFileName(filesAppData[0]))
-            {
-                solicitarContraseña = true;
-            }
-        }
 
-        // Verificar archivos en C:\MyAppData no presentes en ~/App_Data/
-        if (!solicitarContraseña)
-        {
-            foreach (var file in filesC)
-            {
-                string fileName = Path.GetFileName(file);
-                if (!filesAppData.Any(f => Path.GetFileName(f) == fileName))
-                {
-                    solicitarContraseña = true;
-                    break;
-                }
-            }
-        }
-
+        // No necesitamos comparar con archivos en App_Data ya que se ha eliminado esa lógica
         return solicitarContraseña;
     }
 
     public void CrearTxt()
     {
         string pathC = @"C:\MyAppData";
-        string pathAppData = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
 
         EnsureDirectoryExists(pathC);
-        EnsureDirectoryExists(pathAppData);
 
         var filesC = Directory.GetFiles(pathC);
-        var filesAppData = Directory.GetFiles(pathAppData);
 
-        string newFileAppData;
-        if (filesC.Length == 0 && filesAppData.Length == 0)
+        if (filesC.Length == 0)
         {
-            CreateNewFile(pathC, "unique_01.txt");
-            CreateNewFile(pathAppData, "unique_01.txt");
-        }
-        else if (filesC.Length == 0 && filesAppData.Length > 0)
-        {
-            newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
-            CopyFile(newFileAppData, pathC);
+            string newFile = CreateNewFile(pathC, "unique_01.txt");
         }
         else if (filesC.Length > 1)
         {
             DeleteAllFiles(pathC);
-            newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
-            CopyFile(newFileAppData, pathC);
-        }
-        else if (filesC.Length == 1 && filesAppData.Length == 1)
-        {
-            if (Path.GetFileName(filesC[0]) != Path.GetFileName(filesAppData[0]))
-            {
-                DeleteAllFiles(pathC);
-                newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
-                CopyFile(newFileAppData, pathC);
-            }
+            string newFile = CreateNewFile(pathC, GenerateNextFileName(filesC));
         }
 
-        // Verificar archivos en C:\MyAppData no presentes en ~/App_Data/
-        foreach (var file in filesC)
+        // Verificar archivos en C:\MyAppData y asegurar que sólo haya un archivo
+        if (filesC.Length == 1)
         {
-            string fileName = Path.GetFileName(file);
-            if (!filesAppData.Any(f => Path.GetFileName(f) == fileName))
-            {
-                File.Delete(file);
-                newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
-                CopyFile(newFileAppData, pathC);
-            }
+            // Implementar lógica adicional si es necesario
         }
     }
 
     // Asegurar que el directorio exista, si no, crearlo
-    static void EnsureDirectoryExists(string path)
+    private void EnsureDirectoryExists(string path)
     {
         if (!Directory.Exists(path))
         {
@@ -342,25 +306,21 @@ public partial class Asistencia : Page
     }
 
     // Crear un nuevo archivo con un nombre específico y contenido de GUID
-    static string CreateNewFile(string directory, string fileName)
+    public string CreateNewFile(string directory, string fileName)
     {
         string filePath = Path.Combine(directory, fileName);
-        string fileContent = Guid.NewGuid().ToString();
-        File.WriteAllText(filePath, fileContent);
+        string guidContent = Guid.NewGuid().ToString();
+
+        _CsAccesoAsistenciaWeb.SaveGuidToDatabase(Hf_Ip.Value.Trim(), hfCiudad.Value, guidContent, "AUTORIZADO");
+
+        string encryptedContent = _Lista.Encrypt(guidContent);
+        File.WriteAllText(filePath, encryptedContent);
+
         return filePath;
     }
 
-    // Copiar un archivo de una ubicación a otra
-    static string CopyFile(string sourceFile, string destinationDirectory)
-    {
-        string fileName = Path.GetFileName(sourceFile);
-        string destinationFile = Path.Combine(destinationDirectory, fileName);
-        File.Copy(sourceFile, destinationFile, true);
-        return destinationFile;
-    }
-
     // Eliminar todos los archivos en un directorio
-    static void DeleteAllFiles(string directory)
+    private void DeleteAllFiles(string directory)
     {
         foreach (var file in Directory.GetFiles(directory))
         {
@@ -369,7 +329,7 @@ public partial class Asistencia : Page
     }
 
     // Generar el siguiente nombre de archivo basado en los archivos existentes
-    static string GenerateNextFileName(string[] existingFiles)
+    private string GenerateNextFileName(string[] existingFiles)
     {
         int maxIndex = existingFiles
             .Select(file => Path.GetFileNameWithoutExtension(file))
@@ -391,5 +351,15 @@ public partial class Asistencia : Page
     #endregion
     //============================================================================
 
-
+    //============================================================================
+    #region varios
+    private void MostrarMensaje(string mensaje, string pagina, string tipo)
+    {
+        __mensaje.Value = mensaje;
+        __pagina.Value = pagina;
+        string scriptFunction = (tipo == "Correcto") ? "MostrarMensajeExito();" : "MostrarMensajeError();";
+        ScriptManager.RegisterStartupScript(this, GetType(), "Popup", scriptFunction, true);
+    }
+    #endregion
+    //============================================================================
 }

@@ -1,0 +1,108 @@
+﻿//este codigo sirve para generar un archivo en carpeta App_Data como en carpeta de unidad "C"
+public void CrearTxt()
+    {
+        string pathC = @"C:\MyAppData";
+        string pathAppData = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
+
+        EnsureDirectoryExists(pathC);
+        EnsureDirectoryExists(pathAppData);
+
+        var filesC = Directory.GetFiles(pathC);
+        var filesAppData = Directory.GetFiles(pathAppData);
+
+        string newFileAppData;
+        if (filesC.Length == 0 && filesAppData.Length == 0)
+        {
+            CreateNewFile(pathC, "unique_01.txt");
+            CreateNewFile(pathAppData, "unique_01.txt");
+        }
+        else if (filesC.Length == 0 && filesAppData.Length > 0)
+        {
+            newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
+            CopyFile(newFileAppData, pathC);
+        }
+        else if (filesC.Length > 1)
+        {
+            DeleteAllFiles(pathC);
+            newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
+            CopyFile(newFileAppData, pathC);
+        }
+        else if (filesC.Length == 1 && filesAppData.Length == 1)
+        {
+            if (Path.GetFileName(filesC[0]) != Path.GetFileName(filesAppData[0]))
+            {
+                DeleteAllFiles(pathC);
+                newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
+                CopyFile(newFileAppData, pathC);
+            }
+        }
+
+        // Verificar archivos en C:\MyAppData no presentes en ~/App_Data/
+        foreach (var file in filesC)
+        {
+            string fileName = Path.GetFileName(file);
+            if (!filesAppData.Any(f => Path.GetFileName(f) == fileName))
+            {
+                File.Delete(file);
+                newFileAppData = CreateNewFile(pathAppData, GenerateNextFileName(filesAppData));
+                CopyFile(newFileAppData, pathC);
+            }
+        }
+    }
+
+    // Asegurar que el directorio exista, si no, crearlo
+    static void EnsureDirectoryExists(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+    }
+
+    // Crear un nuevo archivo con un nombre específico y contenido de GUID
+    static string CreateNewFile(string directory, string fileName)
+    {
+        string filePath = Path.Combine(directory, fileName);
+        string fileContent = Guid.NewGuid().ToString();
+        File.WriteAllText(filePath, fileContent);
+        return filePath;
+    }
+
+    // Copiar un archivo de una ubicación a otra
+    static string CopyFile(string sourceFile, string destinationDirectory)
+    {
+        string fileName = Path.GetFileName(sourceFile);
+        string destinationFile = Path.Combine(destinationDirectory, fileName);
+        File.Copy(sourceFile, destinationFile, true);
+        return destinationFile;
+    }
+
+    // Eliminar todos los archivos en un directorio
+    static void DeleteAllFiles(string directory)
+    {
+        foreach (var file in Directory.GetFiles(directory))
+        {
+            File.Delete(file);
+        }
+    }
+
+    // Generar el siguiente nombre de archivo basado en los archivos existentes
+    static string GenerateNextFileName(string[] existingFiles)
+    {
+        int maxIndex = existingFiles
+            .Select(file => Path.GetFileNameWithoutExtension(file))
+            .Where(name => name.StartsWith("unique_"))
+            .Select(name =>
+            {
+                int number;
+                if (int.TryParse(name.Substring(7), out number))
+                {
+                    return number;
+                }
+                return 0;
+            })
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return string.Format("unique_{0:D2}.txt", maxIndex + 1);
+    }

@@ -209,42 +209,31 @@
                                 <ContentTemplate>
                                     <!-- MOSTRAR MENSAJE CUANDO HAY UPDATEPANEL -->
                                     <script type="text/javascript">
-                                        function MostrarMensajeError() {
+                                        function MostrarMensaje(tipo) {
                                             var mensaje = document.getElementById("__mensaje").value;
-                                            if (mensaje != "") {
-                                                //Swal.fire('Any fool can use a computer')
+                                            if (mensaje !== "") {
+                                                var tipoAlerta = (tipo === 'error') ? 'error' : 'success';
                                                 Swal.fire({
                                                     title: "Mensaje del Sistema",
                                                     text: mensaje,
-                                                    type: 'error',
+                                                    type: tipoAlerta,
                                                     showCancelButton: false,
                                                     confirmButtonText: "Aceptar",
                                                 }).then(function () {
-                                                    if (document.getElementById("__pagina").value != "")
-                                                        window.location.href = document.getElementById("__pagina").value;
+                                                    var pagina = document.getElementById("__pagina").value;
+                                                    if (pagina !== "")
+                                                        window.location.href = pagina;
                                                 });
                                             }
+                                        }
+
+                                        function MostrarMensajeError() {
+                                            MostrarMensaje('error');
                                         }
 
                                         function MostrarMensajeExito() {
-                                            var mensaje = document.getElementById("__mensaje").value;
-                                            if (mensaje != "") {
-                                                Swal.fire({
-                                                    title: "Mensaje del Sistema",
-                                                    text: mensaje,
-                                                    type: 'success',
-                                                    showCancelButton: false,
-                                                    confirmButtonText: "Aceptar",
-                                                }).then(function () {
-                                                    if (document.getElementById("__pagina").value != "")
-                                                        window.location.href = document.getElementById("__pagina").value;
-                                                });
-                                            }
+                                            MostrarMensaje('success');
                                         }
-
-                                        //function window_load() {
-                                        //    MostrarMensaje()
-                                        //}
                                     </script>
                                     <!-- FIN DE MOSTRAR MENSAJE CUANDO HAY UPDATEPANEL -->
 
@@ -274,7 +263,7 @@
                                         <asp:HiddenField ID="__mensaje" runat="server" />
                                         <asp:HiddenField ID="__pagina" runat="server" />
                                         <asp:HiddenField ID="Id_" runat="server" Value="0" Visible="False" />
-                                        <asp:HiddenField ID="hfClaveAutorizacion" runat="server" />
+                                        <asp:HiddenField ID="hfClaveAutorizacion" runat="server" Visible="false" />
 
                                     </div>
 
@@ -283,7 +272,7 @@
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="myModalClaveLabel">INGRESAR A WEB DE ASISTENCIA</h5>
+                                                    <h5 class="modal-title" id="myModalClaveLabel">INGRESAR A PAGINA WEB DE ASISTENCIA</h5>
                                                 </div>
                                                 <div class="modal-body">
                                                     <asp:UpdatePanel ID="UpdatePanelModal" runat="server" UpdateMode="Conditional">
@@ -292,7 +281,7 @@
                                                                 <div class="row">
                                                                     <div class="col-md-12">
                                                                         <div class="form-group">
-                                                                            <label for="TxtClave"><b>Ingresar clave:</b></label>
+                                                                            <label for="TxtClave"><b>Clave:</b></label>
                                                                             <asp:RequiredFieldValidator ID="rfvTxtClave" runat="server" ControlToValidate="TxtClave"
                                                                                 ErrorMessage="*" ValidationGroup="ValidarViatico" BackColor="Yellow" ForeColor="Red" SetFocusOnError="True"
                                                                                 Display="Dynamic"></asp:RequiredFieldValidator>
@@ -328,9 +317,11 @@
         </div>
 
         <asp:HiddenField ID="Hf_Ip" runat="server" />
+        <asp:HiddenField ID="hfCiudad" runat="server" />
         <asp:HiddenField ID="hfNavegador" runat="server" />
         <asp:HiddenField ID="hfNavegadorVersion" runat="server" />
         <%--<asp:TextBox ID="TxtIp" runat="server"></asp:TextBox>--%>
+
         <script>
             $(document).ready(function () {
                 $.ajax({
@@ -339,6 +330,7 @@
                     dataType: "jsonp",
                     success: function (location) {
                         $('#<%=Hf_Ip.ClientID%>').val(location.IPv4);
+                        $('#<%=hfCiudad.ClientID%>').val(location.city);
                         <%--$('#<%=TxtIp.ClientID%>').val(location.IPv4);--%>
                     },
                     error: function (xhr, status, error) {
