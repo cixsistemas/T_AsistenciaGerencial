@@ -41,16 +41,17 @@ public class CsAccesoPaginaWebAsistencia
         }
     }
 
-    public bool VerifyGuidInDatabase(string guidContent)
+    public bool VerifyGuidInDatabase(string ip, string guidContent)
     {
         using (SqlConnection connection = new SqlConnection(Ruta))
         {
             connection.Open();
-            string query = "SELECT COUNT(*) FROM [dbo].[TbAccesoPaginaWebAsistencia] WHERE [Guid] = @Guid";
+            string query = "SELECT COUNT(*) FROM [dbo].[TbAccesoPaginaWebAsistencia] WHERE ([Ip] = @ip OR @ip = '') AND ([Guid] = @Guid)";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@Guid", guidContent);
+                command.Parameters.AddWithValue("@ip", ip);
+                command.Parameters.AddWithValue("@Guid", guidContent);               
                 int count = (int)command.ExecuteScalar();
                 return count > 0;
             }

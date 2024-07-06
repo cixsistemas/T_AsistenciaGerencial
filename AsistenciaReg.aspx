@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="AsistenciaUbicacion.aspx.cs" Inherits="AsistenciaUbicacion" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="AsistenciaReg.aspx.cs" Inherits="Asistencia" %>
 
 <!DOCTYPE html>
 <%--https://blog.jscrambler.com/a-momentjs-in-time/--%>
 <%--https://sweetalert2.github.io/--%>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <link rel="icon" type="image/ico" href="imagenes/Sistema.ico" />
+    <link rel="icon" type="image/ico" href="Imagenes/Sistema.ico" />
     <title>Asistencia</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
@@ -72,8 +72,6 @@
         });
     </script>
 
-
-
     <%
         string uAg = Request.ServerVariables["HTTP_USER_AGENT"];
         Regex regEx = new Regex(@"android|iphone|ipad|ipod|blackberry|symbianos", RegexOptions.IgnoreCase);
@@ -92,6 +90,63 @@
         }
     %>
 
+
+
+    <script>
+        <%--// Obtener la dirección IP del cliente
+        function getIpAddress() {
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    // Obtener el elemento oculto por su ID
+                    var hiddenIpAddress = document.getElementById('<%= Hf_Ip.ClientID %>');
+                    var hiddenIpAddress2 = document.getElementById('<%= TxtIp.ClientID %>');
+
+                    // Verificar si el elemento existe en el DOM
+                    if (hiddenIpAddress) {
+                        // Asignar la dirección IP al valor del campo oculto
+                        hiddenIpAddress.value = data.ip;
+                        hiddenIpAddress2.value = data.ip;
+
+                        // Puedes mostrar la dirección IP en la consola si lo deseas
+                        console.log('IP Address: ' + data.ip);
+                    } else {
+                        console.error('El elemento con ID <%= Hf_Ip.ClientID %> no existe en el DOM');
+                    }
+                })
+        .catch(error => console.error('Error fetching IP address:', error));
+            }--%>
+
+        <%--// Función para obtener la geolocalización del cliente
+        function getGeolocation() {
+            $.ajax({
+                url: "https://geolocation-db.com/jsonp",
+                jsonpCallback: "callback",
+                dataType: "jsonp",
+                success: function (location) {
+                    $('#<%=Hf_Ip.ClientID%>').val(location.IPv4);
+                    $('#<%=TxtIp.ClientID%>').val(location.IPv4);
+                    $('#<%=hfCiudad.ClientID%>').val(location.city);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al obtener la IP:", error);
+                }
+            });
+        }--%>
+
+       
+    </script>
+
+    <script type="text/javascript">
+        function redirectOnErrorPage() {
+            // Redirigir a la página de error
+            window.location.href = 'ErrorPage.aspx';
+        }
+
+        function convertirAMayusculas(elemento) {
+            elemento.value = elemento.value.toUpperCase();
+        }
+    </script>
 
     <style>
         .countdown, #clock, #clock2, #clock3, #clock4, #clock5, #clock6 {
@@ -212,44 +267,31 @@
                                 <ContentTemplate>
                                     <!-- MOSTRAR MENSAJE CUANDO HAY UPDATEPANEL -->
                                     <script type="text/javascript">
-                                        //Sys.Application.add_load(MostrarMensajeError);
-                                        //Sys.Application.add_load(MostrarMensajeExito);
-                                        function MostrarMensajeError() {
+                                        function MostrarMensaje(tipo) {
                                             var mensaje = document.getElementById("__mensaje").value;
-                                            if (mensaje != "") {
-                                                //Swal.fire('Any fool can use a computer')
+                                            if (mensaje !== "") {
+                                                var tipoAlerta = (tipo === 'error') ? 'error' : 'success';
                                                 Swal.fire({
                                                     title: "Mensaje del Sistema",
                                                     text: mensaje,
-                                                    type: 'error',
+                                                    type: tipoAlerta,
                                                     showCancelButton: false,
                                                     confirmButtonText: "Aceptar",
                                                 }).then(function () {
-                                                    if (document.getElementById("__pagina").value != "")
-                                                        window.location.href = document.getElementById("__pagina").value;
+                                                    var pagina = document.getElementById("__pagina").value;
+                                                    if (pagina !== "")
+                                                        window.location.href = pagina;
                                                 });
                                             }
+                                        }
+
+                                        function MostrarMensajeError() {
+                                            MostrarMensaje('error');
                                         }
 
                                         function MostrarMensajeExito() {
-                                            var mensaje = document.getElementById("__mensaje").value;
-                                            if (mensaje != "") {
-                                                Swal.fire({
-                                                    title: "Mensaje del Sistema",
-                                                    text: mensaje,
-                                                    type: 'success',
-                                                    showCancelButton: false,
-                                                    confirmButtonText: "Aceptar",
-                                                }).then(function () {
-                                                    if (document.getElementById("__pagina").value != "")
-                                                        window.location.href = document.getElementById("__pagina").value;
-                                                });
-                                            }
+                                            MostrarMensaje('success');
                                         }
-
-                                        //function window_load() {
-                                        //    MostrarMensaje()
-                                        //}
                                     </script>
                                     <!-- FIN DE MOSTRAR MENSAJE CUANDO HAY UPDATEPANEL -->
 
@@ -278,12 +320,102 @@
                                     <div>
                                         <asp:HiddenField ID="__mensaje" runat="server" />
                                         <asp:HiddenField ID="__pagina" runat="server" />
-                                        <asp:HiddenField ID="Id_" runat="server" Value="0" Visible="False" />                                       
-                                        
-                                        <asp:HiddenField ID="Hf_Ip" runat="server" />
-                                        
-                                        <%--<asp:TextBox ID="TextBox1" runat="server"></asp:TextBox>--%>
+                                        <asp:HiddenField ID="Id_" runat="server" Value="0" Visible="False" />
+                                        <asp:HiddenField ID="hfClaveAutorizacion" runat="server" Visible="false" />
+
+
                                     </div>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="myModalClave" tabindex="-1" role="dialog" aria-labelledby="myModalClaveLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="myModalClaveLabel">INGRESAR A PAGINA WEB DE ASISTENCIA</h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <asp:UpdatePanel ID="UpdatePanelModal" runat="server" UpdateMode="Conditional">
+                                                        <ContentTemplate>
+                                                            <div class="container-fluid">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <div class="form-group">
+                                                                            <label for="TxtClave"><b>Clave:</b></label>
+                                                                            <asp:RequiredFieldValidator ID="rfvTxtClave" runat="server" ControlToValidate="TxtClave"
+                                                                                ErrorMessage="*" ValidationGroup="ValidarViatico" BackColor="Yellow" ForeColor="Red" SetFocusOnError="True"
+                                                                                Display="Dynamic"></asp:RequiredFieldValidator>
+                                                                            <asp:TextBox ID="TxtClave" runat="server" CssClass="form-control"
+                                                                                Autocomplete="off" TextMode="Password"
+                                                                                MaxLength="20" onkeyup="convertirAMayusculas(this)"></asp:TextBox>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </ContentTemplate>
+                                                    </asp:UpdatePanel>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <asp:LinkButton ID="BtnClave" runat="server" ValidationGroup="ValidarViatico" OnClick="BtnClave_Click"
+                                                        CssClass="btn btn-primary" OnClientClick="return Confirmar('¿Desea generar acceso?');">
+                    Aceptar <span class="glyphicon glyphicon-ok"></span>
+                                                    </asp:LinkButton>
+                                                    <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="redirectOnErrorPage()">
+                                                        Cancelar <span class="glyphicon glyphicon-remove"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- FIN DE VENTANA MODAL -->
+
+
+
+
+                                    <script>
+                                        <%-- window.onload = function () {
+                                            // Realiza una solicitud AJAX para obtener la geolocalización
+                                            $.ajax({
+                                                url: "https://geolocation-db.com/jsonp",
+                                                jsonpCallback: "callback",
+                                                dataType: "jsonp",
+                                                success: function (location) {
+                                                    $('#<%=Hf_Ip.ClientID%>').val(location.IPv4);
+                                                    $('#<%=hfCiudad.ClientID%>').val(location.city);
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    console.error("Error al obtener la IP:", error);
+                                                }
+                                            });
+
+                                            // Obtener la dirección IP del cliente
+                                            function getIpAddress() {
+                                                fetch('https://api.ipify.org?format=json')
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        // Obtener el elemento oculto por su ID
+                                                        var hiddenIpAddress = document.getElementById('<%= Hf_Ip.ClientID %>');
+
+                                                        // Asignar la dirección IP al valor del campo oculto
+                                                        hiddenIpAddress.value = data.ip;
+
+                                                        // Puedes mostrar la dirección IP en la consola si lo deseas
+                                                        console.log('IP Address: ' + data.ip);
+                                                    })
+            .catch(error => console.error('Error fetching IP address:', error));
+                                                }
+
+                                            // Llamar a la función para obtener la dirección IP al cargar la página
+                                            getIpAddress();
+
+                                            // Asignar información del navegador
+                                            $('#<%=hfNavegador.ClientID%>').val(bowser.name);
+                                            $('#<%=hfNavegadorVersion.ClientID%>').val(bowser.version);
+                                        };--%>
+
+                                    </script>
+
+
+
 
                                 </ContentTemplate>
                             </asp:UpdatePanel>
@@ -292,34 +424,29 @@
                 </div>
             </div>
         </div>
-
-        <%--<asp:label id="lbNavegador" runat="server" visible="true"></asp:label>
-        <asp:label id="lbVersionNavegador" runat="server" visible="true"></asp:label>--%>
+        <asp:HiddenField ID="Hf_Ip" runat="server" />
+        <asp:HiddenField ID="hfCiudad" runat="server" />
         <asp:HiddenField ID="hfNavegador" runat="server" />
         <asp:HiddenField ID="hfNavegadorVersion" runat="server" />
-        <%-- <asp:TextBox ID="Txt_Ip" runat="server"  Enabled="False"></asp:TextBox>--%>
-        <%--<asp:Label ID="Label1" runat="server" style="color:white" Text=""></asp:Label>--%>
 
         <script>
-            $.ajax({
-                //url: "https://geoip-db.com/jsonp",
-                url: "https://geolocation-db.com/jsonp",
-                jsonpCallback: "callback",
-                dataType: "jsonp",
-                success: function (location) {
-                    //$('#Label1').html(location.IPv4);
-                    $('#<%=Hf_Ip.ClientID%>').val(location.IPv4);
-                   <%-- $('#<%=TextBox1.ClientID%>').val(location.IPv4);--%>
-                }
+            $(document).ready(function () {
+                $.ajax({
+                    url: "https://geolocation-db.com/jsonp",
+                    jsonpCallback: "callback",
+                    dataType: "jsonp",
+                    success: function (location) {
+                        $('#<%=hfCiudad.ClientID%>').val(location.city);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error al obtener la IP:", error);
+                    }
+                });
             });
-
-            $('#<%=hfNavegador.ClientID%>').val(bowser.name);
+                // Asignar información del navegador
+                $('#<%=hfNavegador.ClientID%>').val(bowser.name);
             $('#<%=hfNavegadorVersion.ClientID%>').val(bowser.version);
-            //$('#lbNavegador').text(bowser.name);
-            //$('#lbVersionNavegador').text(bowser.version);
-            //document.getElementById("Hf_Navegador").value = navigator.appCodeName;
         </script>
-
         <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="0" AssociatedUpdatePanelID="">
             <ProgressTemplate>
                 <div class="FondoCargando">
@@ -332,7 +459,6 @@
                 </div>
             </ProgressTemplate>
         </asp:UpdateProgress>
-
     </form>
 </body>
 </html>
