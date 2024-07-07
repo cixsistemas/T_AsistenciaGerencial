@@ -9,11 +9,26 @@ public partial class Asistencia :Page
     Lista _Lista = new Lista();
     protected void Page_Load(object sender, EventArgs e)
     {
-        //if (!IsPostBack)
-        //{
-        //    // Llamar a la función para obtener la geolocalización
-        //    GetGeolocation();
-        //}
+        ////if (!IsPostBack)
+        ////{
+        ////    // Llamar a la función para obtener la geolocalización
+        ////    GetGeolocation();
+        ////}
+
+        //string filePath = Server.MapPath("~/App_Data/sample.txt");
+
+        //// Crear el contenido del archivo
+        //string content = "Este es el contenido del archivo de texto generado.";
+
+        //// Escribir el contenido en el archivo
+        //File.WriteAllText(filePath, content);
+
+        //// Configurar la respuesta para descargar el archivo
+        //Response.Clear();
+        //Response.ContentType = "text/plain";
+        //Response.AddHeader("Content-Disposition", "attachment; filename=sample.txt");
+        //Response.WriteFile(filePath);
+        //Response.End();
     }
 
 

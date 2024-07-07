@@ -13,6 +13,7 @@ public partial class Asistencia : Page
     CsClaveAutorizacion _CsClaveAutorizacion = new CsClaveAutorizacion();
     CsAccesoPaginaWebAsistencia _CsAccesoAsistenciaWeb = new CsAccesoPaginaWebAsistencia();
     string pagina = "AsistenciaReg.aspx";
+
     //string encryptedParam = "";
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -40,6 +41,7 @@ public partial class Asistencia : Page
             MostrarMensaje("Error al cargar el parametro (param)", "Asistencia.aspx", "error");
         }
 
+        //CrearTxt2();//prueba
         Inicializar();
 
     }
@@ -141,8 +143,18 @@ public partial class Asistencia : Page
     #region validar clave
     private void Inicializar()
     {
+        if (!_CsAccesoAsistenciaWeb.VerifyGuidInDatabase(Hf_Ip.Value, ""))
+        {
+            //MostrarMensaje("Clave no coincide con las registradas en la base de datos.", "", "error");
+            ScriptManager.RegisterStartupScript(this, GetType(), "displayalertmessage", "$('#myModalClave').modal();"
+  + "setTimeout(function() { $('#TxtClave').focus(); }, 500);", true);
+        }
+    }
+
+    private void Inicializar2()
+    {
         //=============================================================================================
-        ConsultarClavesAutorizacion();
+        //ConsultarClavesAutorizacion();
         if (Verificar())
         {
             ScriptManager.RegisterStartupScript(this, GetType(), "displayalertmessage", "$('#myModalClave').modal();"
@@ -187,13 +199,14 @@ public partial class Asistencia : Page
         string month = today.Month.ToString("D2");
         string year = today.Year.ToString("D4");
 
-        string claveBD = hfClaveAutorizacion.Value + day + month + year;
+        string claveBD = ConsultarClavesAutorizacion() + day + month + year;
         string claveDigitar = TxtClave.Text.Trim();
 
         if (claveBD.Trim() == claveDigitar)
         {
             MostrarMensaje("Contraseña correcta.", pagina, "Correcto");
-            CrearTxt();
+            _CsAccesoAsistenciaWeb.SaveGuidToDatabase(Hf_Ip.Value.Trim(), hfCiudad.Value, "", "AUTORIZADO");
+            //CrearTxt(); //se comento el 07-07-2024
         }
         else
         {
@@ -201,19 +214,20 @@ public partial class Asistencia : Page
         }
     }
 
-    private void ConsultarClavesAutorizacion()
+    private string ConsultarClavesAutorizacion()
     {
+        string clave = "";
         string nombreAcceso = "INGRESAR A PAGINA WEB DE ASISTENCIA";
         DataTable T_ClaveManual = _CsClaveAutorizacion.Listar("1", nombreAcceso.Trim());
         if (T_ClaveManual.Rows.Count > 0)
         {
-            hfClaveAutorizacion.Value = T_ClaveManual.Rows[0]["Clave"].ToString();
+            clave = T_ClaveManual.Rows[0]["Clave"].ToString();
         }
         else
         {
             MostrarMensaje("No hay clave de autorización para mostrar. Consulte con el administrador.", "ErrorPage.aspx", "error");
         }
-
+        return clave;
     }
     #endregion
     //============================================================================
@@ -373,9 +387,11 @@ public partial class Asistencia : Page
     {
         __mensaje.Value = mensaje;
         __pagina.Value = pagina;
-        string scriptFunction = (tipo == "Correcto") ? "MostrarMensajeExito();" : "MostrarMensajeError();";
+        string scriptFunction = (tipo == "error") ? "MostrarMensajeError();" : "MostrarMensajeExito();";
         ScriptManager.RegisterStartupScript(this, GetType(), "Popup", scriptFunction, true);
     }
     #endregion
     //============================================================================
+
+   
 }

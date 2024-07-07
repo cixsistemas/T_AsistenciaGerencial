@@ -40,8 +40,9 @@
     <link href="Otros_css_js/CargandoDatos.css" rel="stylesheet" />
 
     <!-- MENSAJE DEL SISTEMA -->
-    <script src="Otros_css_js/sweetalert2.all.min.js"></script>
-    <link href="Otros_css_js/sweetalert2.min.css" rel="stylesheet" />
+    <%--<script src="Otros_css_js/sweetalert2.all.min.js"></script>
+    <link href="Otros_css_js/sweetalert2.min.css" rel="stylesheet" />--%>
+    <script src="Otros_css_js/sweetalert2@11.js"></script>
 
     <script type="text/javascript">
         function Confirmar(men) {
@@ -274,7 +275,7 @@
                                                 Swal.fire({
                                                     title: "Mensaje del Sistema",
                                                     text: mensaje,
-                                                    type: tipoAlerta,
+                                                    icon: tipoAlerta,  // Cambié 'type' a 'icon' porque 'type' está deprecado en SweetAlert2
                                                     showCancelButton: false,
                                                     confirmButtonText: "Aceptar",
                                                 }).then(function () {
