@@ -241,8 +241,7 @@
                                             ControlToValidate="DdlNroDni" ErrorMessage="**" ForeColor="Red"
                                             SetFocusOnError="True"></asp:RequiredFieldValidator>
                                     </label>
-                                    <asp:DropDownList ID="DdlNroDni" runat="server"
-                                        class="form-control form-control-sm selectpicker"
+                                    <asp:DropDownList ID="DdlNroDni" runat="server" class="form-control form-control-sm selectpicker"
                                         data-live-search="true" data-container="body">
                                     </asp:DropDownList>
                                 </div>
@@ -268,6 +267,40 @@
                                 <ContentTemplate>
                                     <!-- MOSTRAR MENSAJE CUANDO HAY UPDATEPANEL -->
                                     <script type="text/javascript">
+                                        //function MostrarMensajeExito() {
+                                        //    var mensaje = document.getElementById("__mensaje").value;
+                                        //    if (mensaje != "") {
+                                        //        Swal.fire({
+                                        //            title: "Mensaje del Sistema",
+                                        //            text: mensaje,
+                                        //            icon: 'success',
+                                        //            showCancelButton: false,
+                                        //            confirmButtonText: "Aceptar",
+                                        //        }).then(function () {
+                                        //            if (document.getElementById("__pagina").value != "")
+                                        //                window.location.href = document.getElementById("__pagina").value;
+                                        //        });
+                                        //    }
+                                        //}
+
+                                        //function MostrarMensajeError() {
+                                        //    var mensaje = document.getElementById("__mensaje").value;
+                                        //    if (mensaje != "") {
+                                        //        //Swal.fire('Any fool can use a computer')
+                                        //        Swal.fire({
+                                        //            title: "Mensaje del Sistema",
+                                        //            text: mensaje,
+                                        //            icon: 'error',
+                                        //            showCancelButton: false,
+                                        //            confirmButtonText: "Aceptar",
+                                        //        }).then(function () {
+                                        //            if (document.getElementById("__pagina").value != "")
+                                        //                window.location.href = document.getElementById("__pagina").value;
+                                        //        });
+                                        //    }
+                                        //}
+
+                                        
                                         function MostrarMensaje(tipo) {
                                             var mensaje = document.getElementById("__mensaje").value;
                                             if (mensaje !== "") {
@@ -323,8 +356,6 @@
                                         <asp:HiddenField ID="__pagina" runat="server" />
                                         <asp:HiddenField ID="Id_" runat="server" Value="0" Visible="False" />
                                         <asp:HiddenField ID="hfClaveAutorizacion" runat="server" Visible="false" />
-
-
                                     </div>
 
                                     <!-- Modal -->
@@ -368,55 +399,6 @@
                                         </div>
                                     </div>
                                     <!-- FIN DE VENTANA MODAL -->
-
-
-
-
-                                    <script>
-                                        <%-- window.onload = function () {
-                                            // Realiza una solicitud AJAX para obtener la geolocalización
-                                            $.ajax({
-                                                url: "https://geolocation-db.com/jsonp",
-                                                jsonpCallback: "callback",
-                                                dataType: "jsonp",
-                                                success: function (location) {
-                                                    $('#<%=Hf_Ip.ClientID%>').val(location.IPv4);
-                                                    $('#<%=hfCiudad.ClientID%>').val(location.city);
-                                                },
-                                                error: function (xhr, status, error) {
-                                                    console.error("Error al obtener la IP:", error);
-                                                }
-                                            });
-
-                                            // Obtener la dirección IP del cliente
-                                            function getIpAddress() {
-                                                fetch('https://api.ipify.org?format=json')
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        // Obtener el elemento oculto por su ID
-                                                        var hiddenIpAddress = document.getElementById('<%= Hf_Ip.ClientID %>');
-
-                                                        // Asignar la dirección IP al valor del campo oculto
-                                                        hiddenIpAddress.value = data.ip;
-
-                                                        // Puedes mostrar la dirección IP en la consola si lo deseas
-                                                        console.log('IP Address: ' + data.ip);
-                                                    })
-            .catch(error => console.error('Error fetching IP address:', error));
-                                                }
-
-                                            // Llamar a la función para obtener la dirección IP al cargar la página
-                                            getIpAddress();
-
-                                            // Asignar información del navegador
-                                            $('#<%=hfNavegador.ClientID%>').val(bowser.name);
-                                            $('#<%=hfNavegadorVersion.ClientID%>').val(bowser.version);
-                                        };--%>
-
-                                    </script>
-
-
-
 
                                 </ContentTemplate>
                             </asp:UpdatePanel>

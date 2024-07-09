@@ -23,19 +23,24 @@ public class CsAccesoPaginaWebAsistencia
         //
     }
 
-    public void SaveGuidToDatabase(string ip, string ciudad, string guidContent, string permiso)
+    public void SaveGuidToDatabase(string ip, string ciudad, string guidContent, string mac, string permiso
+        ,string observacion)
     {
         using (SqlConnection connection = new SqlConnection(Ruta))
         {
             connection.Open();
-            string query = "INSERT INTO [dbo].[TbAccesoPaginaWebAsistencia] ([Ip], [ciudad], [Guid], [Permiso]) VALUES (@Ip, @ciudad, @Guid, @Permiso)";
+            string query 
+                = "INSERT INTO [dbo].[TbAccesoPaginaWebAsistencia] ([Ip], [ciudad], [Guid], [Mac], [Permiso], [Observacion]) " +
+                "VALUES (@Ip, @ciudad, @Guid, @Mac, @Permiso, @Observacion)";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@Ip", ip);
                 command.Parameters.AddWithValue("@ciudad", ciudad);
                 command.Parameters.AddWithValue("@Guid", guidContent);
+                command.Parameters.AddWithValue("@Mac", mac);
                 command.Parameters.AddWithValue("@Permiso", permiso);
+                command.Parameters.AddWithValue("@Observacion", observacion);
                 command.ExecuteNonQuery();
             }
         }

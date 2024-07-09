@@ -14,7 +14,6 @@ public partial class Asistencia : Page
     CsAccesoPaginaWebAsistencia _CsAccesoAsistenciaWeb = new CsAccesoPaginaWebAsistencia();
     string pagina = "AsistenciaReg.aspx";
 
-    //string encryptedParam = "";
     protected void Page_Load(object sender, EventArgs e)
     {
         ValidationSettings.UnobtrusiveValidationMode = UnobtrusiveValidationMode.None;
@@ -33,17 +32,14 @@ public partial class Asistencia : Page
         if (!string.IsNullOrEmpty(param))
         {
             Hf_Ip.Value = param;
+            Inicializar();
             //// Limpia la sesión después de usarla si ya no es necesaria
             //Session.Remove("param");
         }
-        else
-        {
-            MostrarMensaje("Error al cargar el parametro (param)", "Asistencia.aspx", "error");
-        }
-
-        //CrearTxt2();//prueba
-        Inicializar();
-
+        //else
+        //{
+        //    MostrarMensaje("Error al cargar el parametro (param)", "Asistencia.aspx", "error");
+        //}
     }
 
     //============================================================================
@@ -78,7 +74,7 @@ public partial class Asistencia : Page
                 {
                     servidor.cerrarconexiontrans();
                     btnRegistrar.Visible = false;
-                    MostrarMensaje(servidor.getMensaje(), pagina, "Correcto");
+                    MostrarMensaje(servidor.getMensaje(), pagina, "correcto");
                 }
                 else
                 {
@@ -114,6 +110,12 @@ public partial class Asistencia : Page
             return;
         }
 
+        if (Hf_Ip.Value == null || Hf_Ip.Value == "")
+        {
+            MostrarMensaje("Error al cargar el IP", "Asistencia.aspx", "error");
+            return;
+        }
+
         DateTime Hoy = DateTime.Today;
         string fecha_actual = Hoy.ToString("dd-MM-yyyy");
         string hostModificacion = "Ip:" + Hf_Ip.Value + " - Ciudad: " + hfCiudad.Value.Trim()
@@ -145,9 +147,9 @@ public partial class Asistencia : Page
     {
         if (!_CsAccesoAsistenciaWeb.VerifyGuidInDatabase(Hf_Ip.Value, ""))
         {
-            //MostrarMensaje("Clave no coincide con las registradas en la base de datos.", "", "error");
             ScriptManager.RegisterStartupScript(this, GetType(), "displayalertmessage", "$('#myModalClave').modal();"
   + "setTimeout(function() { $('#TxtClave').focus(); }, 500);", true);
+            //MostrarMensaje("Clave no coincide con las registradas en la base de datos.", "", "error");
         }
     }
 
@@ -204,8 +206,12 @@ public partial class Asistencia : Page
 
         if (claveBD.Trim() == claveDigitar)
         {
-            MostrarMensaje("Contraseña correcta.", pagina, "Correcto");
-            _CsAccesoAsistenciaWeb.SaveGuidToDatabase(Hf_Ip.Value.Trim(), hfCiudad.Value, "", "AUTORIZADO");
+            //__mensaje.Value = "Contraseña correcta.";
+            //__pagina.Value = pagina;
+            //ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeExito();", true);
+            //////ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeExito();", true);
+            MostrarMensaje("Contraseña correcta.", pagina, "correcto");
+            _CsAccesoAsistenciaWeb.SaveGuidToDatabase(Hf_Ip.Value.Trim(), hfCiudad.Value, "", "", "AUTORIZADO", "");
             //CrearTxt(); //se comento el 07-07-2024
         }
         else
@@ -341,7 +347,7 @@ public partial class Asistencia : Page
         string filePath = Path.Combine(directory, fileName);
         string guidContent = Guid.NewGuid().ToString();
 
-        _CsAccesoAsistenciaWeb.SaveGuidToDatabase(Hf_Ip.Value.Trim(), hfCiudad.Value, guidContent, "AUTORIZADO");
+        _CsAccesoAsistenciaWeb.SaveGuidToDatabase(Hf_Ip.Value.Trim(), hfCiudad.Value, guidContent, "", "AUTORIZADO", "");
 
         string encryptedContent = _Lista.Encrypt(guidContent);
         File.WriteAllText(filePath, encryptedContent);
@@ -385,6 +391,19 @@ public partial class Asistencia : Page
     #region varios
     private void MostrarMensaje(string mensaje, string pagina, string tipo)
     {
+        //if (tipo == "correcto")
+        //{
+        //    __mensaje.Value = mensaje;
+        //    __pagina.Value = pagina;
+        //    ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeExito();", true);
+        //}
+        //else if (tipo == "error")
+        //{
+        //    __mensaje.Value = mensaje;
+        //    __pagina.Value = pagina;
+        //    ScriptManager.RegisterStartupScript(this, GetType(), "Popup", "MostrarMensajeError();", true);
+        //}
+
         __mensaje.Value = mensaje;
         __pagina.Value = pagina;
         string scriptFunction = (tipo == "error") ? "MostrarMensajeError();" : "MostrarMensajeExito();";
@@ -393,5 +412,5 @@ public partial class Asistencia : Page
     #endregion
     //============================================================================
 
-   
+
 }
