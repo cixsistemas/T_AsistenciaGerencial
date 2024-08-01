@@ -13,7 +13,8 @@ public partial class Asistencia : Page
     CsClaveAutorizacion _CsClaveAutorizacion = new CsClaveAutorizacion();
     CsAccesoPaginaWebAsistencia _CsAccesoAsistenciaWeb = new CsAccesoPaginaWebAsistencia();
     string pagina = "AsistenciaReg.aspx";
-
+    string ubicacion = "";
+    string observacion = "";
     protected void Page_Load(object sender, EventArgs e)
     {
         ValidationSettings.UnobtrusiveValidationMode = UnobtrusiveValidationMode.None;
@@ -26,20 +27,50 @@ public partial class Asistencia : Page
         Obtener_Trabajador("1");
         DdlNroDni.Focus();
         FechaActual.Text = DateTime.Now.ToLongDateString();
-
-        // Obtener el parámetro 'param' de la sesión
-        string param = Session["param"] as string;
-        if (!string.IsNullOrEmpty(param))
-        {
-            Hf_Ip.Value = param;
-            Inicializar();
-            //// Limpia la sesión después de usarla si ya no es necesaria
-            //Session.Remove("param");
-        }
-        //else
+        ////=================================================================
+        // *** QUITAR EL COMENTARIO cuando se solucione el problema cuando cambia el ip de forma constante
+        //en san ignacio
+        //// Obtener el parámetro 'param' de la sesión
+        //string param = Session["param"] as string;
+        //if (!string.IsNullOrEmpty(param))
         //{
-        //    MostrarMensaje("Error al cargar el parametro (param)", "Asistencia.aspx", "error");
+        //    Hf_Ip.Value = param;
+        //    Inicializar();
         //}
+        ////=================================================================
+
+
+        //=================================================================
+        //*** OJO ==> comentar cuando se solucione el problema cuando cambia el ip de forma constante
+        //en san ignacio
+        string Opcion = Request.QueryString["Op"];
+        //se agrego este if para evitar que pida contraseña, este link AsistenciaReg.aspx?Op=
+        //sera usado solo para san ignacio
+        if (Opcion == null) //momentaneo
+        {
+            // Manejo del caso cuando "Op" no está presente en la QueryString
+            // Por ejemplo, podrías asignar un valor por defecto o lanzar una excepción personalizada.
+            //=================================================================
+            // Obtener el parámetro 'param' de la sesión
+            string param = Session["param"] as string;
+            if (!string.IsNullOrEmpty(param))
+            {
+                Hf_Ip.Value = param;
+                Inicializar();
+            }
+            pagina = "AsistenciaReg.aspx";
+            ubicacion = "";
+            observacion = "";
+        }
+        else
+        {
+            Hf_Ip.Value = "255.255.255.254";
+            pagina = "AsistenciaReg.aspx?Op=";
+            ubicacion = "SAN IGNACIO";
+            observacion = "TERMINAL DE EMBARQUE";
+            hfCiudad.Value = "San Ignacio";
+        }
+        //=================================================================
     }
 
     //============================================================================
@@ -127,8 +158,8 @@ public partial class Asistencia : Page
         "SI",//VALIDO
         rbPreference.SelectedValue,//ENTRADA o SALIDA
         "WEB",//DESDE
-        "",//UBICACION
-        "",//OBSERVACION
+        ubicacion,//UBICACION
+        observacion,//OBSERVACION
         hostModificacion,//HOSTMODIFICACION
         //"Ip:" + Hf_Ip.Value,
         Convert.ToDateTime(fecha_actual),//FECHA_MODIFICACION

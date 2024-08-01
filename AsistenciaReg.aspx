@@ -300,7 +300,7 @@
                                         //    }
                                         //}
 
-                                        
+
                                         function MostrarMensaje(tipo) {
                                             var mensaje = document.getElementById("__mensaje").value;
                                             if (mensaje !== "") {
@@ -413,7 +413,7 @@
         <asp:HiddenField ID="hfNavegadorVersion" runat="server" />
 
         <script>
-            $(document).ready(function () {
+            <%--$(document).ready(function () {
                 $.ajax({
                     url: "https://geolocation-db.com/jsonp",
                     jsonpCallback: "callback",
@@ -425,7 +425,8 @@
                         console.error("Error al obtener la IP:", error);
                     }
                 });
-            });
+            });--%>
+
                 // Asignar información del navegador
                 $('#<%=hfNavegador.ClientID%>').val(bowser.name);
             $('#<%=hfNavegadorVersion.ClientID%>').val(bowser.version);
