@@ -27,7 +27,6 @@
     <!-- SI funciona capturar ip -->
     <script src="bootstrap-4.5.0/js/popper.min.js"></script>
     <script src="bootstrap-4.5.0/js/bootstrap.min.js"></script>
-    <%--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>--%>
 
     <!-- Capturar Navegador -->
     <script src="Otros_css_js/bowser.min.js"></script>
@@ -40,8 +39,6 @@
     <link href="Otros_css_js/CargandoDatos.css" rel="stylesheet" />
 
     <!-- MENSAJE DEL SISTEMA -->
-    <%--<script src="Otros_css_js/sweetalert2.all.min.js"></script>
-    <link href="Otros_css_js/sweetalert2.min.css" rel="stylesheet" />--%>
     <script src="Otros_css_js/sweetalert2@11.js"></script>
 
     <script type="text/javascript">
@@ -90,53 +87,6 @@
             RfvrbPreference.Visible = false;
         }
     %>
-
-
-
-    <script>
-        <%--// Obtener la dirección IP del cliente
-        function getIpAddress() {
-            fetch('https://api.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => {
-                    // Obtener el elemento oculto por su ID
-                    var hiddenIpAddress = document.getElementById('<%= Hf_Ip.ClientID %>');
-                    var hiddenIpAddress2 = document.getElementById('<%= TxtIp.ClientID %>');
-
-                    // Verificar si el elemento existe en el DOM
-                    if (hiddenIpAddress) {
-                        // Asignar la dirección IP al valor del campo oculto
-                        hiddenIpAddress.value = data.ip;
-                        hiddenIpAddress2.value = data.ip;
-
-                        // Puedes mostrar la dirección IP en la consola si lo deseas
-                        console.log('IP Address: ' + data.ip);
-                    } else {
-                        console.error('El elemento con ID <%= Hf_Ip.ClientID %> no existe en el DOM');
-                    }
-                })
-        .catch(error => console.error('Error fetching IP address:', error));
-            }--%>
-
-        <%--// Función para obtener la geolocalización del cliente
-        function getGeolocation() {
-            $.ajax({
-                url: "https://geolocation-db.com/jsonp",
-                jsonpCallback: "callback",
-                dataType: "jsonp",
-                success: function (location) {
-                    $('#<%=Hf_Ip.ClientID%>').val(location.IPv4);
-                    $('#<%=TxtIp.ClientID%>').val(location.IPv4);
-                    $('#<%=hfCiudad.ClientID%>').val(location.city);
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error al obtener la IP:", error);
-                }
-            });
-        }--%>
-
-       
-    </script>
 
     <script type="text/javascript">
         function redirectOnErrorPage() {
@@ -232,8 +182,17 @@
                             <!-- BUSQUEDA -->
                             <div class="form-row">
                                 <div class="form-group col-md-12">
-                                    <label for="name">
-                                        Trabajador:
+                                    <label for="name">Opción</label>
+                                    <asp:RadioButtonList ID="RbOpcion" runat="server" AutoPostBack="False"
+                                        RepeatDirection="Horizontal">
+                                        <asp:ListItem Text="&nbsp;Normal &nbsp;&nbsp;" Value="NORMAL" Selected="True">
+                                        </asp:ListItem>
+                                        <asp:ListItem Text="&nbsp;Lector" Value="LECTOR"></asp:ListItem>
+                                    </asp:RadioButtonList>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="<%= DdlNroDni.ClientID %>">
+                                        Trabajador
                                          <asp:RangeValidator ID="rvDdlNroDni" runat="server" BackColor="Yellow"
                                              ControlToValidate="DdlNroDni" ErrorMessage="Busque y Seleccione" ForeColor="Red" MaximumValue="99999"
                                              MinimumValue="1" SetFocusOnError="True" Type="Integer"></asp:RangeValidator>
@@ -267,40 +226,6 @@
                                 <ContentTemplate>
                                     <!-- MOSTRAR MENSAJE CUANDO HAY UPDATEPANEL -->
                                     <script type="text/javascript">
-                                        //function MostrarMensajeExito() {
-                                        //    var mensaje = document.getElementById("__mensaje").value;
-                                        //    if (mensaje != "") {
-                                        //        Swal.fire({
-                                        //            title: "Mensaje del Sistema",
-                                        //            text: mensaje,
-                                        //            icon: 'success',
-                                        //            showCancelButton: false,
-                                        //            confirmButtonText: "Aceptar",
-                                        //        }).then(function () {
-                                        //            if (document.getElementById("__pagina").value != "")
-                                        //                window.location.href = document.getElementById("__pagina").value;
-                                        //        });
-                                        //    }
-                                        //}
-
-                                        //function MostrarMensajeError() {
-                                        //    var mensaje = document.getElementById("__mensaje").value;
-                                        //    if (mensaje != "") {
-                                        //        //Swal.fire('Any fool can use a computer')
-                                        //        Swal.fire({
-                                        //            title: "Mensaje del Sistema",
-                                        //            text: mensaje,
-                                        //            icon: 'error',
-                                        //            showCancelButton: false,
-                                        //            confirmButtonText: "Aceptar",
-                                        //        }).then(function () {
-                                        //            if (document.getElementById("__pagina").value != "")
-                                        //                window.location.href = document.getElementById("__pagina").value;
-                                        //        });
-                                        //    }
-                                        //}
-
-
                                         function MostrarMensaje(tipo) {
                                             var mensaje = document.getElementById("__mensaje").value;
                                             if (mensaje !== "") {
@@ -333,7 +258,7 @@
                                         <div class="col-sm-12 text-center">
                                             <div class="btn-group">
                                                 <asp:LinkButton ID="btnRegistrar" runat="server" class="btn btn-primary"
-                                                    OnClientClick="return Confirmar('¿Desea Registrar Asistencia?');"
+                                                    OnClientClick="return Confirmar('¿Desea registrar asistencia?');"
                                                     Style="font-family: Calibri; font-size: medium"
                                                     UseSubmitBehavior="false" CausesValidation="true"
                                                     Text="Registrar" OnClick="btnRegistrar_Click" />
@@ -413,22 +338,8 @@
         <asp:HiddenField ID="hfNavegadorVersion" runat="server" />
 
         <script>
-            <%--$(document).ready(function () {
-                $.ajax({
-                    url: "https://geolocation-db.com/jsonp",
-                    jsonpCallback: "callback",
-                    dataType: "jsonp",
-                    success: function (location) {
-                        $('#<%=hfCiudad.ClientID%>').val(location.city);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error al obtener la IP:", error);
-                    }
-                });
-            });--%>
-
-                // Asignar información del navegador
-                $('#<%=hfNavegador.ClientID%>').val(bowser.name);
+            // Asignar información del navegador
+            $('#<%=hfNavegador.ClientID%>').val(bowser.name);
             $('#<%=hfNavegadorVersion.ClientID%>').val(bowser.version);
         </script>
         <asp:UpdateProgress ID="UpdateProgress1" runat="server" DisplayAfter="0" AssociatedUpdatePanelID="">
