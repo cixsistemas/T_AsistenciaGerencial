@@ -3,6 +3,8 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Web;
+using System.Web.Services;
 using System.Web.UI;
 
 public partial class Asistencia : Page
@@ -287,6 +289,9 @@ public partial class Asistencia : Page
                 }
                 else
                 {
+                    //guardar en una sesion el datatable
+                    Session["Trabajadores"] = dt;
+
                     DdlNroDni.DataSource = dt;
                     DdlNroDni.DataTextField = "NOMBRE";
                     DdlNroDni.DataValueField = "CODIGO";
@@ -440,6 +445,38 @@ public partial class Asistencia : Page
         string scriptFunction = (tipo == "error") ? "MostrarMensajeError();" : "MostrarMensajeExito();";
         ScriptManager.RegisterStartupScript(this, GetType(), "Popup", scriptFunction, true);
     }
+    #endregion
+    //============================================================================
+
+    //============================================================================
+    #region buscar trabajador con el lector de codigo de barras
+    [WebMethod]
+    public static string ValidarTrabajador(string dni)
+    {
+        try
+        {
+            DataTable pasajeros = (DataTable)HttpContext.Current.Session["Trabajadores"];
+
+            if (pasajeros == null)
+                return "ERROR: La sesión ha expirado";
+
+            DataRow[] encontrados = pasajeros.Select("DNI = '" + dni + "'");
+
+            if (encontrados.Length > 0)
+            {
+                return "OK|" + encontrados[0]["CODIGO"].ToString().Trim();
+            }
+            else
+            {
+                return "NO_ENCONTRADO";
+            }
+        }
+        catch (Exception ex)
+        {
+            return "ERROR_GENERAL: " + ex.Message;
+        }
+    }
+
     #endregion
     //============================================================================
 

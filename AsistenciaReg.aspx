@@ -99,6 +99,103 @@
         }
     </script>
 
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Cambia el focus según el radio
+            $('input[name="<%=RbOpcion.UniqueID%>"]').change(function (e) {
+                var opcion = $('input[name="<%=RbOpcion.UniqueID%>"]:checked').val();
+
+                if (opcion == "LECTOR") {
+                    // Desactivar el select
+                    $('#<%=DdlNroDni.ClientID%>').prop('disabled', true).selectpicker('refresh');
+                    // Activar el input
+                    $('#txtDni').focus();
+
+                } else {
+                    // Activar el select
+                    $('#<%=DdlNroDni.ClientID%>').prop('disabled', false).selectpicker('refresh');
+                    // Poner el focus en el select
+                    $('#<%=DdlNroDni.ClientID%>').focus();
+                }
+            });
+
+            // Detectar escaneo automáticamente
+            $('#txtDni').on('input', function (e) {
+                var dni = $(this).val().trim();
+
+                if (dni.length == 8) {
+                    escanearCodigoBarras(dni);
+                }
+            });
+        });
+
+        function escanearCodigoBarras(dni) {
+            var opcion = $('input[name="<%=RbOpcion.UniqueID%>"]:checked').val();
+
+            if (opcion == "LECTOR") {
+                $.ajax({
+                    type: "POST",
+                    url: "AsistenciaReg.aspx/ValidarTrabajador",
+                    data: JSON.stringify({ dni: dni }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (msg) {
+                        var res = msg.d;
+
+                        if (res.startsWith("OK|")) {
+                            var id = res.split('|')[1];
+                            var ddl = document.getElementById("<%=DdlNroDni.ClientID%>");
+                            ddl.value = id;
+
+                            // Refresca el selectpicker
+                            $('#<%=DdlNroDni.ClientID%>').selectpicker('refresh');
+
+                                limpiarCampo();
+                            } else if (res == "NO_ENCONTRADO") {
+                                alert("DNI NO ENCONTRADO.");
+                                limpiarCampo();
+                            } else {
+                                console.error("Error.", res);
+                                alert("Error.");
+                                limpiarCampo();
+                            }
+                    },
+                    error: function (err) {
+                        console.error(err);
+                        alert("Error.");
+                        limpiarCampo();
+                    }
+                });
+                }
+            }
+
+            function limpiarCampo() {
+                var opcion = $('input[name="<%=RbOpcion.UniqueID%>"]:checked').val();
+
+                if (opcion == "LECTOR") {
+                    $('#txtDni').val('');
+                    $('#txtDni').focus();
+                } else {
+                    $('#<%=DdlNroDni.ClientID%>').focus();
+                }
+            }
+    </script>
+
+    <style>
+        #txtDni {
+            width: 1px;
+            height: 1px;
+            border: none;
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            color: transparent;
+            caret-color: transparent;
+            outline: none;
+        }
+    </style>
+
+
     <style>
         .countdown, #clock, #clock2, #clock3, #clock4, #clock5, #clock6 {
             display: flex;
@@ -164,9 +261,6 @@
 <body>
     <form id="form1" runat="server">
         <asp:ScriptManager ID="ScriptManager1" runat="server">
-            <Scripts>
-                <%--<asp:ScriptReference Path="~/Otros_css_js/sweetalert2.all.min.js" />--%>
-            </Scripts>
         </asp:ScriptManager>
         <div class="container" style="margin-top: 15px">
             <div class="row">
@@ -191,6 +285,7 @@
                                     </asp:RadioButtonList>
                                 </div>
                                 <div class="form-group col-md-12">
+                                    <!-- Campo de escaneo (oculto) -->
                                     <label for="<%= DdlNroDni.ClientID %>">
                                         Trabajador
                                          <asp:RangeValidator ID="rvDdlNroDni" runat="server" BackColor="Yellow"
@@ -200,14 +295,15 @@
                                             ControlToValidate="DdlNroDni" ErrorMessage="**" ForeColor="Red"
                                             SetFocusOnError="True"></asp:RequiredFieldValidator>
                                     </label>
-                                    <asp:DropDownList ID="DdlNroDni" runat="server" class="form-control form-control-sm selectpicker"
+                                    <!-- Input muy pequeño, invisible pero con el focus -->
+                                    <input id="txtDni" type="text" />
+                                    <asp:DropDownList ID="DdlNroDni" runat="server" CssClass="form-control form-control-sm selectpicker"
                                         data-live-search="true" data-container="body">
                                     </asp:DropDownList>
                                 </div>
 
-
                                 <div class="form-group col-md-12">
-                                    <label for="name">
+                                    <label for="<%= rbPreference.ClientID %>">
                                         Movimiento:
                                         <asp:RequiredFieldValidator ID="RfvrbPreference" runat="server" ControlToValidate="rbPreference"
                                             BackColor="Yellow" ForeColor="Red" ErrorMessage="Seleccione Entrada o Salida">  
