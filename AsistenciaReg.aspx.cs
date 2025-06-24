@@ -68,7 +68,7 @@ public partial class Asistencia : Page
         {
             Hf_Ip.Value = "255.255.255.254";
             pagina = "AsistenciaReg.aspx?Op=";
-            ubicacion = "SAN IGNACIO";
+            ubicacion = "";
             observacion = "TERMINAL DE EMBARQUE";
             hfCiudad.Value = "San Ignacio";
         }
