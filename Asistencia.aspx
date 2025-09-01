@@ -81,31 +81,6 @@
         $(document).ready(function () {
             getGeolocation();
         });
-
-        <%--function getGeolocation() {
-            $.ajax({
-                url: "https://geolocation-db.com/jsonp",
-                jsonpCallback: "callback",
-                dataType: "jsonp",
-                success: function (location) {
-                    $('#<%=Hf_Ip.ClientID%>').val(location.IPv4);
-                    var param = $('#<%=Hf_Ip.ClientID%>').val();
-
-                    // Redirigir a la página después de 1 segundo
-                    setTimeout(function () {
-                        window.location.href = 'AsistenciaReg.aspx?param=' + param;
-                    }, 1000);
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error al obtener la IP:", error);
-                }
-            });
-        }
-
-        // Ejecutar la función getGeolocation al cargar la página
-        $(document).ready(function () {
-            getGeolocation();
-        });--%>
     </script>
 
 
